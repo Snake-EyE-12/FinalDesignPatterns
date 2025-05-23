@@ -34,8 +34,9 @@ namespace FinalProjectPSD
             Console.WriteLine("Initializing Generation");
             string inputtedStrategyType = inputReader.GetString("Input Genre");
             IIdeaGeneratorFactory factory = new ConcreteFactory();
-            IdeaGenerationStrategy genreStrategy = factory.GetStrategy(inputtedStrategyType);
-            Console.WriteLine(genreStrategy.Generate());
+            IStrategyDecorator genreStrategy = factory.GetStrategy(inputtedStrategyType);
+            genreStrategy.Use();
+            Console.WriteLine(genreStrategy.Use());
             Console.WriteLine("\n\n\n\n\n\n\n");
             return new LoggerCommand(genreStrategy);
         }
@@ -46,8 +47,8 @@ namespace FinalProjectPSD
     }
     public class LoggerCommand : Command
     {
-        IdeaGenerationStrategy generator;
-        public LoggerCommand(IdeaGenerationStrategy selectedGenerator)
+        IStrategyDecorator generator;
+        public LoggerCommand(IStrategyDecorator selectedGenerator)
         {
             generator = selectedGenerator;
         }
@@ -64,7 +65,7 @@ namespace FinalProjectPSD
         public void LoadStrategy(IdeaGenerationStrategy strategy);
         public string GenerateIdea();
     }
-    public interface IdeaGenerationStrategy
+    public interface IdeaGenerationStrategy : IStrategyDecorator
     {
         public string Generate();
     }
@@ -74,22 +75,24 @@ namespace FinalProjectPSD
         {
             return "Platformer Idea";
         }
+
+        public string Use() { return Generate(); }
     }
-    public class ConreteActionIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "Action Game Idea"; } }
-    public class ConreteFPSIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "FPS Idea"; } }
-    public class ConretePuzzleIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "Puzzle Concept"; } }
-    public class ConreteRogueliteIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "Rogue but lite"; } }
-    public class ConreteRoguelikeIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "Rogue but like"; } }
-    public class ConreteRPGIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "RPG Idea"; } }
-    public class ConreteRTSIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "RTS Idea"; } }
-    public class ConreteTDIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "Only Bloons TD"; } }
+    public class ConreteActionIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "Action Game Idea"; } public string Use() { return Generate(); } }
+    public class ConreteFPSIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "FPS Idea"; } public string Use() { return Generate(); } }
+    public class ConretePuzzleIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "Puzzle Concept"; } public string Use() { return Generate(); } }
+    public class ConreteRogueliteIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "Rogue but lite"; } public string Use() { return Generate(); } }
+    public class ConreteRoguelikeIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "Rogue but like"; } public string Use() { return Generate(); } }
+    public class ConreteRPGIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "RPG Idea"; } public string Use() { return Generate(); } }
+    public class ConreteRTSIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "RTS Idea"; } public string Use() { return Generate(); } }
+    public class ConreteTDIdeaGenerationStrategy : IdeaGenerationStrategy { public string Generate() { return "Only Bloons TD"; } public string Use() { return Generate(); } }
     public interface IIdeaGeneratorFactory
     {
-        public IdeaGenerationStrategy GetStrategy(string method);
+        public IStrategyDecorator GetStrategy(string method);
     }
     public class ConcreteFactory : IIdeaGeneratorFactory
     {
-        public IdeaGenerationStrategy GetStrategy(string method)
+        public IStrategyDecorator GetStrategy(string method)
         {
             switch(method)
             {
@@ -102,8 +105,38 @@ namespace FinalProjectPSD
                 case "RPG":             return new ConreteRPGIdeaGenerationStrategy();
                 case "RTS":             return new ConreteRTSIdeaGenerationStrategy();
                 case "TowerDefense":    return new ConreteTDIdeaGenerationStrategy();
-                default: return null;
+                default:                return new IncompatibleStategy();
             }
+        }
+    }
+
+    public interface IStrategyDecorator
+    {
+        string Use();
+    }
+
+    public interface IActivatable
+    {
+        void Activate();
+        void Deactivate();
+    }
+    public class IncompatibleStategy : IActivatable, IStrategyDecorator
+    {
+        public void Activate()
+        {
+            Console.WriteLine("Activating: This is something that should be incompatible");
+        }
+
+        public void Deactivate()
+        {
+            Console.WriteLine("Deactivate");
+        }
+
+        public string Use()
+        {
+            Activate();
+            Deactivate();
+            return "";
         }
     }
     public interface IInputReader
